@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/genai": "latest",
+    "@vercel/analytics": "^1.5.0",
     "esbuild": "0.25.8",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
