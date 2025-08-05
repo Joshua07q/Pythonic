@@ -1,0 +1,5 @@
+{
+  "name": "The Pythonic Journey",
+  "description": "An interactive platform to learn Python by solving challenges. Your code is evaluated by AI, providing instant feedback to help you master programming concepts from basics to machine learning.",
+  "requestFramePermissions": []
+}

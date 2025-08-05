@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-M-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Pythonic Journey</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
+    <style>
+      /* Custom scrollbar for a more modern look */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1e293b; /* slate-800 */
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #475569; /* slate-600 */
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #64748b; /* slate-500 */
+      }
+      /* Custom styles for details/summary accordion */
+      details > summary {
+        list-style: none;
+      }
+      details > summary::-webkit-details-marker {
+        display: none;
+      }
+      details summary .arrow {
+        transition: transform 0.2s;
+      }
+      details[open] summary .arrow {
+        transform: rotate(90deg);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "@google/genai": "https://esm.sh/@google/genai",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.1/",
+    "react/": "https://esm.sh/react@^19.1.1/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-slate-900 text-slate-300">
+    <header style="text-align:center; margin-top:2rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="48" height="48" style="display:inline-block;vertical-align:middle; color:#22d3ee;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.82m5.84-2.56a15.953 15.953 0 0 1-2.58 3.09m-3.26-3.09a15.953 15.953 0 0 1-2.58-3.09m-3.26 3.09a6 6 0 0 1-5.84-7.38c.64-.06 1.28-.1 1.94-.1a9.98 9.98 0 0 1 8.25 4.5m-5.84-7.38a15.953 15.953 0 0 0-2.58 3.09m3.26-3.09a15.953 15.953 0 0 0 2.58-3.09m-3.26 3.09a6 6 0 0 1 5.84 7.38" />
+      </svg>
+      <span style="font-size:2rem; font-weight:bold; color:#e0f2fe; margin-left:0.5rem; vertical-align:middle;">The Pythonic Journey</span>
+    </header>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

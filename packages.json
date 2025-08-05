@@ -1,0 +1,11 @@
+{
+  "name": "the-pythonic-journey",
+  "description": "An interactive platform for learning Python with a live in-browser code runner.",
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "pyodide": "v0.25.1",
+    "tailwindcss": "3.4.3"
+  },
+  "source": "Dependencies are loaded from CDN via import maps and script tags in index.html."
+}
