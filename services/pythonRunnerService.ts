@@ -1,13 +1,38 @@
-import { ExecutionResult } from '../types';
+import { ExecutionResult, OnUserInput } from '../types';
 
 declare const loadPyodide: (config: { indexURL: string }) => Promise<any>;
 
 let pyodide: any = null;
 let pyodideReadyPromise: Promise<void> | null = null;
 
-const PACKAGES = ["scikit-learn", "pandas"];
+const PACKAGES = [
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "requests",
+    "beautifulsoup4",
+    "scipy",
+    "seaborn",
+    "plotly",
+    "nltk",
+    "spacy",
+    "opencv-python",
+    "tensorflow",
+    "torch",
+    "jupyter",
+    "ipywidgets",
+    "pytest",
+    "flake8",
+    "black",
+    "mypy",
+    "isort"
+];
 
-const initPyodide = (onProgress: (message: string) => void): Promise<void> => {
+const initPyodide = (
+    onProgress: (message: string) => void,
+    onUserInput: OnUserInput
+): Promise<void> => {
     if (pyodideReadyPromise) {
         return pyodideReadyPromise;
     }
@@ -21,8 +46,13 @@ const initPyodide = (onProgress: (message: string) => void): Promise<void> => {
         onProgress("Loading required packages...");
         await pyodide.loadPackage(PACKAGES);
         
-        // Set stdin to use the browser's prompt function
-        pyodide.setStdin({ stdin: () => prompt() });
+        pyodide.setStdin({
+            stdin: (promptText: string) => {
+                // The promptText is what Python's input() function sends.
+                // We'll pass it to our React component to display.
+                return onUserInput(promptText);
+            }
+        });
 
         onProgress("Python environment is ready!");
     })();

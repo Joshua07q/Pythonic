@@ -28,3 +28,5 @@ export interface AIReviewResult {
   feedback: string;
   corrected_code: string;
 }
+
+export type OnUserInput = (prompt: string) => Promise<string>;

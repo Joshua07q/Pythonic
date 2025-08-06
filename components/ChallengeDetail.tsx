@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Challenge, ExecutionResult, AIReviewResult } from '../types';
 import { LoadingSpinner, XCircleIcon, LightbulbIcon, TerminalIcon, SparklesIcon, CheckCircleIcon, InfoIcon } from './icons';
 
@@ -15,10 +15,48 @@ interface ChallengeDetailProps {
   executionResult: ExecutionResult | null;
   aiReviewResult: AIReviewResult | null;
   error: string | null;
+  isAwaitingInput: boolean;
+  inputPrompt: string;
+  onUserInput: (value: string) => void;
 }
 
-const OutputPanel: React.FC<{ result: ExecutionResult | null }> = ({ result }) => {
-    if (!result) return null;
+const UserInputPrompt: React.FC<{ prompt: string, onSubmit: (value: string) => void }> = ({ prompt, onSubmit }) => {
+    const [inputValue, setInputValue] = useState('');
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSubmit(inputValue);
+    };
+
+    return (
+        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-slate-800 border border-slate-700 rounded-lg p-8 shadow-2xl max-w-lg w-full">
+                <h3 className="text-xl font-bold text-cyan-400 mb-4">{prompt || "Input Required"}</h3>
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        className="w-full bg-slate-700 text-slate-200 border border-slate-600 rounded-md px-4 py-2 focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                        autoFocus
+                    />
+                    <button type="submit" className="mt-4 w-full px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-500 transition-colors">
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+
+const OutputPanel: React.FC<{ result: ExecutionResult | null, isAwaitingInput: boolean }> = ({ result, isAwaitingInput }) => {
+    if (!result && !isAwaitingInput) return null;
+
+    const output = result?.output || '';
+    const error = result?.error || '';
+    const hasOutput = output.length > 0;
+    const hasError = error.length > 0;
 
     return (
         <div className="mt-4">
@@ -27,17 +65,23 @@ const OutputPanel: React.FC<{ result: ExecutionResult | null }> = ({ result }) =
                 Console Output
             </h3>
             <div className="bg-slate-900 border border-slate-700 p-4 rounded-lg font-mono text-sm min-h-[5rem]">
-                {result.output && (
-                    <pre className="whitespace-pre-wrap text-slate-300">{result.output}</pre>
+                {hasOutput && (
+                    <pre className="whitespace-pre-wrap text-slate-300">{output}</pre>
                 )}
-                {result.error && (
-                    <pre className="whitespace-pre-wrap text-red-400 mt-2">
+                {isAwaitingInput && (
+                    <div className="flex items-center text-yellow-400 animate-pulse">
+                        <LoadingSpinner />
+                        <span className="ml-2">Awaiting user input...</span>
+                    </div>
+                )}
+                {hasError && (
+                    <pre className={`whitespace-pre-wrap text-red-400 ${hasOutput ? 'mt-2' : ''}`}>
                         <span className="font-bold">[Error]</span>
                         {'\n'}
-                        {result.error}
+                        {error}
                     </pre>
                 )}
-                {!result.output && !result.error && (
+                {!hasOutput && !hasError && !isAwaitingInput && (
                     <p className="text-slate-500 italic">No output was produced.</p>
                 )}
             </div>
@@ -107,7 +151,10 @@ const ChallengeDetail: React.FC<ChallengeDetailProps> = ({
     runnerStatusMessage,
     executionResult, 
     aiReviewResult,
-    error 
+    error,
+    isAwaitingInput,
+    inputPrompt,
+    onUserInput
 }) => {
   const handleTab = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Tab') {
@@ -125,6 +172,7 @@ const ChallengeDetail: React.FC<ChallengeDetailProps> = ({
 
   return (
     <div className="p-6 md:p-8">
+      {isAwaitingInput && <UserInputPrompt prompt={inputPrompt} onSubmit={onUserInput} />}
       <h2 className="text-3xl font-extrabold text-slate-100 mb-2">{challenge.title}</h2>
       <p className="text-slate-400 mb-6">{challenge.description}</p>
       
@@ -221,7 +269,7 @@ const ChallengeDetail: React.FC<ChallengeDetailProps> = ({
           </div>
       )}
       
-      <OutputPanel result={executionResult} />
+      <OutputPanel result={executionResult} isAwaitingInput={isAwaitingInput} />
       <AIReviewPanel result={aiReviewResult} isLoading={isAIReviewLoading} />
 
     </div>
