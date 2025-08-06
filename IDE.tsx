@@ -1,11 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Challenge, ExecutionResult, AIReviewResult } from './types';
 import { WEEKS_DATA } from './constants/challenges';
 import ChallengeList from './components/ChallengeList';
 import ChallengeDetail from './components/ChallengeDetail';
 import { initPyodide, runPythonCode } from './services/pythonRunnerService';
 import { getAIReview } from './services/geminiService';
-import { RocketIcon } from './components/icons';
+import { RocketIcon, MenuIcon, XIcon } from './components/icons';
 
 const IDE: React.FC = () => {
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge>(WEEKS_DATA[0].challenges[0]);
@@ -21,13 +21,27 @@ const IDE: React.FC = () => {
   const [runnerStatusMessage, setRunnerStatusMessage] = useState<string>("Initializing Python environment...");
   const [error, setError] = useState<string | null>(null);
 
+  const [isAwaitingInput, setIsAwaitingInput] = useState<boolean>(false);
+  const [inputPrompt, setInputPrompt] = useState<string>('');
+  const inputPromiseResolve = useRef<((value: string) => void) | null>(null);
+  const [isNavOpen, setIsNavOpen] = useState(false);
+
+  const handleUserInput = (prompt: string): Promise<string> => {
+    setIsAwaitingInput(true);
+    setInputPrompt(prompt);
+    return new Promise((resolve) => {
+      inputPromiseResolve.current = resolve;
+    });
+  };
+
   useEffect(() => {
     const initialize = async () => {
       try {
         setError(null);
-        await initPyodide((message: string) => {
-          setRunnerStatusMessage(message);
-        });
+        await initPyodide(
+          (message: string) => setRunnerStatusMessage(message),
+          handleUserInput
+        );
         setIsRunnerReady(true);
       } catch (err) {
         console.error("Failed to load Pyodide:", err);
@@ -37,6 +51,15 @@ const IDE: React.FC = () => {
     };
     initialize();
   }, []);
+
+  const onUserInputChange = (value: string) => {
+    if (inputPromiseResolve.current) {
+      inputPromiseResolve.current(value);
+      inputPromiseResolve.current = null;
+    }
+    setIsAwaitingInput(false);
+    setInputPrompt('');
+  };
 
   const handleSelectChallenge = useCallback((challenge: Challenge) => {
     setSelectedChallenge(challenge);
@@ -54,7 +77,7 @@ const IDE: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setExecutionResult(prev => ({ ...prev, [selectedChallenge.id]: null }));
-    setAIReviewResult(prev => ({ ...prev, [selectedChallenge.id]: null })); // Clear previous review
+    setAIReviewResult(prev => ({ ...prev, [selectedChallenge.id]: null }));
 
     try {
       const codeToRun = userCode[selectedChallenge.id] || '';
@@ -106,19 +129,28 @@ const IDE: React.FC = () => {
               <RocketIcon className="w-8 h-8 text-cyan-400" />
               <h1 className="text-xl md:text-2xl font-bold text-slate-100">The Pythonic Journey</h1>
             </div>
+            <div className="md:hidden">
+              <button onClick={() => setIsNavOpen(!isNavOpen)} className="p-2 text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                <span className="sr-only">Open main menu</span>
+                {isNavOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       <div className="flex-grow grid md:grid-cols-12 overflow-hidden">
-        <aside className="md:col-span-4 lg:col-span-3 xl:col-span-3 bg-slate-800/50 border-r border-slate-700/50 overflow-y-auto">
+        <aside className={`md:col-span-4 lg:col-span-3 xl:col-span-3 bg-slate-800/50 border-r border-slate-700/50 overflow-y-auto ${isNavOpen ? 'block' : 'hidden'} md:block`}>
           <ChallengeList
             weeks={WEEKS_DATA}
             selectedChallengeId={selectedChallenge.id}
-            onSelectChallenge={handleSelectChallenge}
+            onSelectChallenge={(challenge) => {
+              handleSelectChallenge(challenge);
+              setIsNavOpen(false);
+            }}
           />
         </aside>
-        <main className="md:col-span-8 lg:col-span-9 xl:col-span-9 overflow-y-auto">
+        <main className={`md:col-span-8 lg:col-span-9 xl:col-span-9 overflow-y-auto ${isNavOpen ? 'hidden' : 'block'} md:block`}>
           {selectedChallenge && (
             <ChallengeDetail
               challenge={selectedChallenge}
@@ -133,6 +165,9 @@ const IDE: React.FC = () => {
               executionResult={executionResult[selectedChallenge.id] || null}
               aiReviewResult={aiReviewResult[selectedChallenge.id] || null}
               error={error}
+              isAwaitingInput={isAwaitingInput}
+              inputPrompt={inputPrompt}
+              onUserInput={onUserInputChange}
             />
           )}
         </main>
