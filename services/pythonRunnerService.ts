@@ -21,6 +21,9 @@ const initPyodide = (onProgress: (message: string) => void): Promise<void> => {
         onProgress("Loading required packages...");
         await pyodide.loadPackage(PACKAGES);
         
+        // Set stdin to use the browser's prompt function
+        pyodide.setStdin({ stdin: () => prompt() });
+
         onProgress("Python environment is ready!");
     })();
 

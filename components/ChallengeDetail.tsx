@@ -109,6 +109,20 @@ const ChallengeDetail: React.FC<ChallengeDetailProps> = ({
     aiReviewResult,
     error 
 }) => {
+  const handleTab = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const { selectionStart, selectionEnd, value } = e.currentTarget;
+      const newValue = value.substring(0, selectionStart) + '    ' + value.substring(selectionEnd);
+      onCodeChange(newValue);
+
+      // This timeout is needed to correctly set the cursor position after the state update
+      setTimeout(() => {
+        e.currentTarget.selectionStart = e.currentTarget.selectionEnd = selectionStart + 4;
+      }, 0);
+    }
+  };
+
   return (
     <div className="p-6 md:p-8">
       <h2 className="text-3xl font-extrabold text-slate-100 mb-2">{challenge.title}</h2>
@@ -168,6 +182,7 @@ const ChallengeDetail: React.FC<ChallengeDetailProps> = ({
             className="w-full h-64 bg-slate-800 text-slate-100 p-4 font-mono text-sm resize-y outline-none"
             value={userCode}
             onChange={(e) => onCodeChange(e.target.value)}
+            onKeyDown={handleTab}
             placeholder="Enter your Python code here..."
             spellCheck="false"
             aria-label="Python code editor"
