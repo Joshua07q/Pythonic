@@ -12,9 +12,6 @@ const PACKAGES = [
     "matplotlib",
     "requests",
     "scipy",
-    "torch",
-    "jupyter",
-    "isort"
 ];
 
 const initPyodide = (
