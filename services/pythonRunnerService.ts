@@ -11,21 +11,9 @@ const PACKAGES = [
     "numpy",
     "matplotlib",
     "requests",
-    "beautifulsoup4",
     "scipy",
-    "seaborn",
-    "plotly",
-    "nltk",
-    "spacy",
-    "opencv-python",
-    "tensorflow",
     "torch",
     "jupyter",
-    "ipywidgets",
-    "pytest",
-    "flake8",
-    "black",
-    "mypy",
     "isort"
 ];
 
