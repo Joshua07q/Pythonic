@@ -17,6 +17,7 @@ Prerequisites: Node.js
    - `GEMINI_API_KEY=<your-gemini-key>` (or `VITE_GEMINI_API_KEY`)
    - `VITE_SUPABASE_URL=<your-supabase-url>`
    - `VITE_SUPABASE_ANON_KEY=<your-supabase-anon-key>`
+   - `VITE_AUTH_REDIRECT_URL=<https://your-domain.com/>` (recommended for production OAuth redirects)
 3. Apply Supabase migration from:
    - `supabase/migrations/20260211090000_init_pythonic.sql`
 4. Start dev server:

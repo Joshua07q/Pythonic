@@ -66,6 +66,19 @@ const toReadableErrorMessage = (error: any): string => {
   return [message, details, hint].filter(Boolean).join(' | ') || 'Unknown Supabase error';
 };
 
+const getOAuthRedirectUrl = (): string => {
+  const configured = import.meta.env.VITE_AUTH_REDIRECT_URL;
+  if (typeof configured === 'string' && configured.trim().length > 0) {
+    return configured.trim();
+  }
+
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  return new URL(import.meta.env.BASE_URL ?? '/', window.location.origin).toString();
+};
+
 export const signInAnonymously = async (): Promise<void> => {
   const supabase = requireSupabase();
   const { error } = await supabase.auth.signInAnonymously();
@@ -76,10 +89,11 @@ export const signInAnonymously = async (): Promise<void> => {
 
 export const signInWithGoogle = async (): Promise<void> => {
   const supabase = requireSupabase();
+  const redirectTo = getOAuthRedirectUrl();
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin,
+      redirectTo,
     },
   });
   if (error) {
